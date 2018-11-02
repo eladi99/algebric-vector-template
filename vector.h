@@ -30,8 +30,6 @@ public:
     double norm () const;
     Vector normalize () const;
     
-    std::string to_string () const;
-
     double& operator[] (unsigned int ind);
     const double& operator[] (unsigned int ind) const;
     Vector& operator= (const Vector& vec);
@@ -42,8 +40,13 @@ public:
     Vector operator- (const Vector& vec) const;
     Vector operator* (double alpha) const;
     double operator* (const Vector& vec) const;
+    Vector& operator+= (const Vector& vec);
+    Vector& operator-= (const Vector& vec);
+    Vector& operator*= (double alpha);
     bool operator== (const Vector& vec) const;
     bool operator!= (const Vector& vec) const;
+    
+    std::string to_string () const;
 };
 
 template <unsigned int dim>
@@ -51,12 +54,12 @@ Vector<dim>::Vector (double arr[]): _arr (new double[dim]) {
     if (arr == nullptr) {
         for (unsigned int i = 0; i < dim; i++) {
             _arr[i] = 0.0;
+            return;
         }
     }
-    else {
-        for (unsigned int i = 0; i < dim; i++) {
-            _arr[i] = arr[i];
-        }
+    
+    for (unsigned int i = 0; i < dim; i++) {
+        _arr[i] = arr[i];
     }
 }
 
@@ -81,20 +84,13 @@ Vector<dim>::~Vector () {
 
 template <unsigned int dim>
 Vector<dim> Vector<dim>::zero_vec () {
-    double *zero_arr = new double[dim];
-    for (unsigned int i = 0; i < dim; i++) {
-        zero_arr[i] = 0.0;
-    }
-
-    Vector vec0 (zero_arr);
-    delete[] zero_arr;
-    return vec0;
+    return Vector ();
 }
 
 template <unsigned int dim>
 Vector<dim> Vector<dim>::unit_vec (unsigned int ind) {
-    Vector vec0 (zero_vec ());
-    vec0[ind] = 1.0;
+    Vector vec0 = Vector ();
+    vec0._arr[ind] = 1.0;
     return vec0;
 }
 
@@ -105,25 +101,21 @@ unsigned int Vector<dim>::get_dim () const {
 
 template <unsigned int dim>
 Vector<dim> Vector<dim>::add (const Vector& vec) const {
-    double *sum_arr = new double[dim];
+    Vector sum_vec = Vector ();
     for (unsigned int i = 0; i < dim; i++) {
-        sum_arr[i] = _arr[i] + vec._arr[i];
+        sum_vec._arr[i] = _arr[i] + vec._arr[i];
     }
 
-    Vector sum_vec (sum_arr);
-    delete[] sum_arr;
     return sum_vec;
 }
 
 template <unsigned int dim>
 Vector<dim> Vector<dim>::subtract (const Vector& vec) const {
-    double *sum_arr = new double[dim];
+    Vector sum_vec = Vector ();
     for (unsigned int i = 0; i < dim; i++) {
-        sum_arr[i] = _arr[i] - vec._arr[i];
+        sum_vec._arr[i] = _arr[i] - vec._arr[i];
     }
 
-    Vector sum_vec (sum_arr);
-    delete[] sum_arr;
     return sum_vec;
 }
 
@@ -197,18 +189,6 @@ const double& Vector<dim>::operator[] (unsigned int ind) const {
 }
 
 template <unsigned int dim>
-std::string Vector<dim>::to_string () const {
-    std::ostringstream out_str;
-    out_str << "(" << _arr[0];
-    for (unsigned int i = 1; i < dim; i++) {
-        out_str << ", " << _arr[i];
-    }
-
-    out_str << ")";
-    return out_str.str();
-}
-
-template <unsigned int dim>
 double Vector<dim>::angle (const Vector& vec1, const Vector& vec2) {
     return acos (vec1.normalize () * vec2.normalize ());
 }
@@ -234,6 +214,33 @@ double Vector<dim>::operator* (const Vector& vec) const {
 }
 
 template <unsigned int dim>
+Vector<dim>& Vector<dim>::operator+= (const Vector& vec) {
+    for (unsigned int i = 0; i < dim; i++) {
+        _arr[i] += vec._arr[i];
+    }
+
+    return *this;
+}
+
+template <unsigned int dim>
+Vector<dim>& Vector<dim>::operator-= (const Vector& vec) {
+    for (unsigned int i = 0; i < dim; i++) {
+        _arr[i] -= vec._arr[i];
+    }
+
+    return *this;
+}
+
+template <unsigned int dim>
+Vector<dim>& Vector<dim>::operator*= (double alpha) {
+    for (unsigned int i = 0; i < dim; i++) {
+        _arr[i] *= alpha;
+    }
+
+    return *this;
+}
+
+template <unsigned int dim>
 bool Vector<dim>::operator== (const Vector& vec) const {
     return this == &vec || is_equal (vec);
 }
@@ -241,4 +248,17 @@ bool Vector<dim>::operator== (const Vector& vec) const {
 template <unsigned int dim>
 bool Vector<dim>::operator!= (const Vector& vec) const {
     return !is_equal (vec);
+
+}
+
+template <unsigned int dim>
+std::string Vector<dim>::to_string () const {
+    std::ostringstream out_str;
+    out_str << "(" << _arr[0];
+    for (unsigned int i = 1; i < dim; i++) {
+        out_str << ", " << _arr[i];
+    }
+
+    out_str << ")";
+    return out_str.str();
 }
