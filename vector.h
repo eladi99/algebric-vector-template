@@ -1,3 +1,6 @@
+#ifndef VECTOR_H
+#define VECTOR_H
+
 #include <cmath>
 #include <string>
 #include <sstream>
@@ -262,3 +265,5 @@ std::string Vector<dim>::to_string () const {
     out_str << ")";
     return out_str.str();
 }
+
+#endif /* VECTOR_H */
